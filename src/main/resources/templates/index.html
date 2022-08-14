@@ -1,10 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Hello world</title>
 </head>
 <body>
 <p>Hello world!</p>
+Enter parameters to search article:
+<form action="/laba2/home" method="post" >
+
+    <span>Keyword:</span><input type="text" name="q" /> <br/>
+
+    <span>From:</span> <input type = "date"  name="from"> <br/>
+    <span>To:</span> <input type = "date"  name="to"> <br/>
+
+    <span>Category:</span>
+    <select size="1" name="category">
+        <option selected value=""></option>
+        <option  value="technology">technology</option>
+        <option  value="sports">sports</option>
+        <option  value="entertainment">entertainment</option>
+        <option  value="health">health </option>
+        <option  value="science">science </option>
+        <option  value="business">business  </option>
+    </select><br/>
+
+    <span>Language:</span>
+    <select size="1" name="country">
+        <option selected value="ua">UA</option>
+        <option  value="ru">RU</option>
+        <option  value="en">ENG</option>
+    </select><br/>
+    <input type="submit" value="Ok"/>
+
+</form>
+
+<p><textarea th:text="${description}" rows="10" cols="45" name="desc"></textarea></p>
+
+<form action="/laba2/save" method="post" >
+    <input type="submit" value="Save"/>
+</form>
+
 </body>
 </html>
