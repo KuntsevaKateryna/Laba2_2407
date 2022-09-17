@@ -73,8 +73,10 @@ public class Controller {
 
             rez = String.join("\n\n", articles_info);
             model.addAttribute("description", rez);
-            logger.info("rez: " + rez);
-
+            //logger.info("rez: " + rez);
+            for (Article a : articles) {
+              //  logger.info("Article title: " + a.getTitle());
+            }
         } catch (InterruptedException  e) {
             logger.error(e.getMessage());
         } catch (ExecutionException e) {

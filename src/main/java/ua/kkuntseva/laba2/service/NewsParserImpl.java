@@ -10,24 +10,14 @@ import org.springframework.stereotype.Service;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.model.Source;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 @Service
-public class NewsParserImpl implements NewsParser{
+public class NewsParserImpl implements NewsParser {
     Logger logger = LoggerFactory.getLogger(NewsParserImpl.class);
 
-    public static String[] fieldsNameArray = {
-            "author",
-            "title",
-            "description",
-            "url",
-            "urlToImage",
-            "publishedAt",
-            "content"};
 
     @Override
     public Article parseJSON(String jsonString) {
@@ -37,36 +27,47 @@ public class NewsParserImpl implements NewsParser{
         try {
             Object obj = new JSONParser().parse(jsonString);
             JSONObject jo = (JSONObject) obj;
-
-            Class cls = article.getClass();
-            String currentFieldName = null;
-            for (int i = 0; i < fieldsNameArray.length; i++) {
-                currentFieldName = fieldsNameArray[i];
-                Method[] methods = cls.getDeclaredMethods();
-                for (Method m : methods) {
-                    if (m.getName().equalsIgnoreCase("set" + currentFieldName)) {
-                        m.invoke(article, (String) jo.get(currentFieldName));
-                    }
+            Long totalResults = (Long) jo.get("totalResults");
+            System.out.println("articles_count: " + totalResults);
+            JSONArray articlesArr = (JSONArray) jo.get("articles");
+            Iterator articlesItr = articlesArr.iterator();
+            JSONObject article_obj = null;
+            while (articlesItr.hasNext()) {
+                article_obj = (JSONObject) articlesItr.next();
+                article.setAuthor(article_obj.get("author") != null ? article_obj.get("author").toString() : null);
+                article.setTitle(article_obj.get("title") != null ? article_obj.get("title").toString() : null);
+                article.setDescription(article_obj.get("description") != null ? article_obj.get("description").toString() : null);
+                article.setUrl(article_obj.get("url") != null ? article_obj.get("url").toString() : null);
+                article.setUrlToImage(article_obj.get("urlToImage") != null ? article_obj.get("urlToImage").toString() : null);
+                article.setPublishedAt(article_obj.get("publishedAt") != null ? article_obj.get("publishedAt").toString() : null);
+                article.setContent(article_obj.get("content") != null ? article_obj.get("content").toString() : null);
+                System.out.println("article.getAuthor and title " + article.getAuthor() + ", " + article.getTitle());
+                JSONObject source_obj = (JSONObject) article_obj.get("source");
+                if (!source_obj.isEmpty()) {
+                    source.add(new Source(
+                                    source_obj.get("id") != null ? source_obj.get("id").toString() : null,
+                                    source_obj.get("name") != null ? source_obj.get("name").toString() : null
+                            )
+                    );
+                    article.setSource(source);
                 }
+                System.out.println("- article.toString() : " + article.toString());
+                source.clear();
             }
-            // to get array getSource []
-            JSONArray getSource = (JSONArray) jo.get("Source");
-            Iterator iter = getSource.iterator();
-            // to output array items
-            while (iter.hasNext()) {
-                JSONObject sourceElem = (JSONObject) iter.next();
-                source.add(new Source(
-
-                        sourceElem.get("id").toString(),
-                        sourceElem.get("name").toString()
-                        )
-                );
-                article.setSource(source);
-            }
-
-        } catch (ClassCastException | ParseException | IllegalAccessException | InvocationTargetException | NullPointerException e) {
+        } catch (ClassCastException | ParseException | NullPointerException e) {
             logger.error(e.getMessage());
         }
+        return article;
+    }
+
+    @Override
+    public Article convert(String source) {
+        Article article = null;
+        //if (source.startsWith("<?xml "))
+        //    film = parseXML(source);
+        //else
+        if (source.startsWith("{\""))
+            article = parseJSON(source);
         return article;
     }
 }
