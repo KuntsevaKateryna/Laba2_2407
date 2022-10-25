@@ -51,11 +51,12 @@ public class NewsParserImpl implements NewsParser {
                     );
                     article.setSource(source);
                 }
-                System.out.println("- article.toString() : " + article.toString());
+               // System.out.println("- article.toString() : " + article.toString());
                 source.clear();
             }
         } catch (ClassCastException | ParseException | NullPointerException e) {
-            logger.error(e.getMessage());
+            //logger.error(e.getMessage());
+            e.printStackTrace();
         }
         return article;
     }

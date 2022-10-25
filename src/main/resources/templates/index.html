@@ -7,15 +7,15 @@
 <body>
 <p>Hello world!</p>
 Enter parameters to search article:
-<form action="/laba2/home" method="post" >
+<form action="/laba2/home" method="post">
 
-    <span>Keyword:</span><input type="text" name="q" /> <br/>
+    <!--<span>Keyword:</span><input type="text" name="q" /> <br/> -->
 
     <span>From:</span> <input type = "date"  name="from"> <br/>
     <span>To:</span> <input type = "date"  name="to"> <br/>
 
-    <span>Category:</span>
-    <select size="1" name="category">
+    <span>Select Category:</span> <br/>
+ <!--   <select size="1" name="category">
         <option selected value=""></option>
         <option  value="technology">technology</option>
         <option  value="sports">sports</option>
@@ -24,6 +24,21 @@ Enter parameters to search article:
         <option  value="science">science </option>
         <option  value="business">business  </option>
     </select><br/>
+-->
+        <input type="checkbox" id="technology" name="category" value="technology">
+        <label for="technology"> technology</label><br>
+        <input type="checkbox" id="sports" name="category" value="sports">
+        <label for="sports"> sports</label><br>
+        <input type="checkbox" id="entertainment" name="category" value="entertainment">
+        <label for="entertainment">entertainment</label><br>
+        <input type="checkbox" id="health" name="category" value="health">
+        <label for="health">health</label><br>
+        <input type="checkbox" id="science" name="category" value="science">
+        <label for="science">science</label><br>
+        <input type="checkbox" id="business" name="category" value="business">
+        <label for="business">business</label><br>
+        <input type="checkbox" id="all" name="category" value="">
+        <label for="all">all</label><br>
 
     <span>Language:</span>
     <select size="1" name="country">
