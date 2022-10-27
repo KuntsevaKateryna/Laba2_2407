@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.service.NewsLoader;
-import ua.kkuntseva.laba2.service.NewsLoaderImpl;
 import ua.kkuntseva.laba2.service.NewsParserImpl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 @org.springframework.stereotype.Controller
 @RequestMapping("/laba2")
@@ -36,18 +35,6 @@ public class Controller {
     private String file_path;
     @Value("${site_address}")
     private String site_address;
-    List<String> categories = new ArrayList<String>() {
-        {
-            add("technology");
-            add("sports");
-            add("entertainment");
-            add("health");
-            add("science");
-            add("business");
-            add("all");
-        }
-    };
-
 
     @Autowired
     private NewsLoader newsLoader;
@@ -56,24 +43,6 @@ public class Controller {
 
     List<String> articles_info = new ArrayList<String>();
     List<Article> articles = new ArrayList<Article>();
-
-
-  /*  @Async("processExecutor")
-    public CompletableFuture<String> async_findArticle(String site_address,
-                                                       String apikey_value,
-                                                       //String q,
-                                                       String from,
-                                                       String to,
-                                                       String category,
-                                                       String country) {
-        return newsLoaderImpl.findArticle(site_address,
-                apikey_value,
-                //String q,
-                from,
-                to,
-                category,
-                country);
-    }*/
 
     @GetMapping("/home")
     public String defaultPage(Model model) {
@@ -90,38 +59,37 @@ public class Controller {
         String rez = null;
         logger.info("start to send request");
         try {
-            CompletableFuture<String> result = //async_findArticle
-                    newsLoader.findArticle
-                            (site_address,
-                                    apikey_value,
-                                    //   q,
-                                    from,
-                                    to,
-                                    category,
-                                    country);
-            result.thenAcceptAsync(ii -> {
-                logger.warn("finished name result = " + result);
-            });
-            articles_info.add(result.get());
-            articles.add(newsParserImpl.parseJSON(result.get()));
+
+            String[] category_array = category.split(Pattern.quote(","));
+            System.out.println("category: " + category);
+            for (int i = 0; i < category_array.length; i++) {
+                System.out.println("category_array[i]: " + category_array[i]);
+                CompletableFuture<String> result = //async_findArticle
+                        newsLoader.findArticle
+                                (site_address,
+                                        apikey_value,
+                                        //   q,
+                                        from,
+                                        to,
+                                        category_array[i],
+                                        country);
+                result.thenAcceptAsync(ii -> {
+                    logger.warn("finished name result = " + result);
+                });
+                articles_info.add(result.get());
+                articles.add(newsParserImpl.parseJSON(result.get()));
 
 
-            rez = String.join("\n\n", articles_info);
-            model.addAttribute("description", rez);
-            //logger.info("rez: " + rez);
-            for (Article a : articles) {
-                //  logger.info("Article title: " + a.getTitle());
+                rez = String.join("\n\n", articles_info);
+                model.addAttribute("description", rez);
             }
         } catch (InterruptedException e) {
-            //logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (ExecutionException e) {
-            // logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return "index";
     }
-
 }

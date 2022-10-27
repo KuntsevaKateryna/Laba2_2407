@@ -5,10 +5,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.concurrent.CompletableFuture;
 
-
 public interface NewsLoader {
 
-   // @Async("processExecutor")
     public CompletableFuture<String> findArticle(      String site_address,
                                                        String apikey_value,
                                                        //String q,
