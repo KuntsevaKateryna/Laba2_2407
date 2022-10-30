@@ -6,6 +6,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.model.Source;
@@ -18,7 +19,7 @@ import java.util.List;
 public class NewsParserImpl implements NewsParser {
     Logger logger = LoggerFactory.getLogger(NewsParserImpl.class);
 
-
+    @Async("processExecutor")
     @Override
     public Article parseJSON(String jsonString) {
         Article article = new Article();
@@ -51,12 +52,10 @@ public class NewsParserImpl implements NewsParser {
                     );
                     article.setSource(source);
                 }
-               // System.out.println("- article.toString() : " + article.toString());
                 source.clear();
             }
         } catch (ClassCastException | ParseException | NullPointerException e) {
-            //logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return article;
     }

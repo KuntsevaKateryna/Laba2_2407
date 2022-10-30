@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.service.NewsLoader;
+import ua.kkuntseva.laba2.service.NewsParser;
 import ua.kkuntseva.laba2.service.NewsParserImpl;
 
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.regex.Pattern;
 
 @org.springframework.stereotype.Controller
 @RequestMapping("/laba2")
-//@EnableAsync
 public class Controller {
 
     Logger logger = LoggerFactory.getLogger(Controller.class);
@@ -39,7 +39,7 @@ public class Controller {
     @Autowired
     private NewsLoader newsLoader;
     @Autowired
-    private NewsParserImpl newsParserImpl;
+    private NewsParser newsParser;
 
     List<String> articles_info = new ArrayList<String>();
     List<Article> articles = new ArrayList<Article>();
@@ -58,6 +58,7 @@ public class Controller {
                              @RequestParam String country) {
         String rez = null;
         logger.info("start to send request");
+        long startTime = System.currentTimeMillis();
         try {
 
             String[] category_array = category.split(Pattern.quote(","));
@@ -76,13 +77,17 @@ public class Controller {
                 result.thenAcceptAsync(ii -> {
                     logger.warn("finished name result = " + result);
                 });
-                articles_info.add(result.get());
-                articles.add(newsParserImpl.parseJSON(result.get()));
-
-
+                //articles_info - a collection of received info about articles, shown in textarea
+               articles_info.add(result.get());
                 rez = String.join("\n\n", articles_info);
-                model.addAttribute("description", rez);
+               model.addAttribute("description", rez);
+              // show_result_in_textarea(result, rez, model);
+
+                //articles - a collection of Articles, ready to be written to Word document
+                articles.add(newsParser.parseJSON(result.get()));
             }
+            long endTime = System.currentTimeMillis();
+            System.out.println("Common Process time :" + (endTime - startTime));
         } catch (InterruptedException e) {
             logger.error(e.getMessage());
         } catch (ExecutionException e) {
@@ -91,5 +96,14 @@ public class Controller {
             logger.error(e.getMessage());
         }
         return "index";
+    }
+
+    // not used, just only for testing async effectiveness
+    @Async("processExecutor")
+    void show_result_in_textarea(CompletableFuture<String> result, String rez, ModelMap model) throws ExecutionException, InterruptedException {
+        //articles_info - a collection of received info about articles, shown in textarea
+        articles_info.add(result.get());
+        rez = String.join("\n\n", articles_info);
+        model.addAttribute("description", rez);
     }
 }
