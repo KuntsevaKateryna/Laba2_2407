@@ -56,7 +56,7 @@ public class NewsLoaderImpl implements NewsLoader {
             System.out.println("Process time:" + (endTime - startTime));
         }
         catch (IOException e) {
-            logger.error("error in reading URL resource");
+           logger.error("error in reading URL resource");
         }
         return CompletableFuture.completedFuture(sb.toString());
     }

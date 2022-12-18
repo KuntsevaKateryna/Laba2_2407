@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 import java.util.List;
 
 @Data
@@ -13,11 +14,11 @@ public class Article {
 
  public List<Source> source;
 
-    String author,
-        title,
-        description,
-        url,
-        urlToImage,
-        publishedAt,
-        content;
+    String author;
+    String    title;
+    String    description;
+    String    url;
+    String    urlToImage;
+    String    publishedAt;
+    String    content;
 }

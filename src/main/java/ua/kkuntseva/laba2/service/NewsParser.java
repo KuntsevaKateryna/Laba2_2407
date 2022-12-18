@@ -3,7 +3,10 @@ package ua.kkuntseva.laba2.service;
 import org.springframework.core.convert.converter.Converter;
 import ua.kkuntseva.laba2.model.Article;
 
-public interface NewsParser extends Converter<String, Article> {
+import java.util.List;
 
-    public Article parseJSON(String jsonString);
+
+public interface NewsParser extends Converter<String, List<Article>> {
+
+    public List<Article> parseJSON(String jsonString);
 }
