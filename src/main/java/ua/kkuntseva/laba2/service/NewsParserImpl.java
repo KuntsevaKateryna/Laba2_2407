@@ -1,6 +1,12 @@
 package ua.kkuntseva.laba2.service;
 
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,6 +17,7 @@ import org.springframework.stereotype.Service;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.model.Source;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,18 +27,27 @@ import java.util.List;
 public class NewsParserImpl implements NewsParser {
     Logger logger = LoggerFactory.getLogger(NewsParserImpl.class);
 
-    @Override
+
+
+ @Override
     public List<Article> parseJSON(String jsonString) {
         List<Article> articles1 = new ArrayList<Article>();
         try {
             System.out.println("start method parseJSON jsonString: " + jsonString);
             Article article = new Article();
             List<Source> source = new ArrayList<Source>();
+
             Object obj = new JSONParser().parse(jsonString);
             JSONObject jo = (JSONObject) obj;
             JSONArray articlesArr = (JSONArray) jo.get("articles");
-            Iterator articlesItr = articlesArr.iterator();
             JSONObject article_obj = null;
+            Iterator articlesItr = articlesArr.iterator();
+
+            //Object obj = new JSONParser().parse(jsonString);
+            //JSONObject jo = (JSONObject) obj;
+            Long article_count = (Long) jo.get("totalResults");
+            System.out.println("totalResults: " + article_count);
+
             JSONObject source_obj = null;
             while (articlesItr.hasNext()) {
                 article_obj = (JSONObject) articlesItr.next();
@@ -76,5 +92,14 @@ public class NewsParserImpl implements NewsParser {
             articles2 = parseJSON(source);
         }
         return articles2;
+    }
+
+    @Override
+    public long parse_articles_count(String jsonString) throws ParseException {
+     Object obj = new JSONParser().parse(jsonString);
+        JSONObject jo = (JSONObject) obj;
+        long articles_count = (long) jo.get("totalResults");
+        System.out.println("-- parse_articles_count " + articles_count);
+        return articles_count;
     }
 }

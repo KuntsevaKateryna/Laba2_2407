@@ -1,6 +1,8 @@
 package ua.kkuntseva.laba2.controller;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,8 @@ public class Controller {
     private String file_path;
     @Value("${site_address}")
     private String site_address;
+    @Value("${page_size}")
+    private int page_size;
 
     @Autowired
     private NewsLoader newsLoader;
@@ -69,38 +73,61 @@ public class Controller {
         try {
             String[] category_array = category.split(Pattern.quote(","));
             System.out.println("category: " + category);
+
+
+
             for (int i = 0; i < category_array.length; i++) {
                 System.out.println("category_array[i]: " + category_array[i]);
-                CompletableFuture<String> result =
-                        newsLoader.findArticle
-                                (site_address,
-                                        apikey_value,
-                                        //   q,
-                                        from,
-                                        to,
-                                        category_array[i],
-                                        country);
 
-                result.thenAcceptAsync(ii -> {
-                    logger.warn("finished name result = " + result);
-                });
-                //articles_info - a collection of received info about articles, shown in textarea
-                articles_info.add(result.get());
-                rez = String.join("\n\n", articles_info);
-                model.addAttribute("description", rez);
+                int page_number = 1;
+                Long articles_count = null;
+                long cycles_to_read = 0;
 
-                //articles - a collection of Articles, ready to be written to Word document
-                articles = newsParser.parseJSON(result.get());
-                System.out.println("++result.get() :" + result.get());
+               do {
+                   //load articles:
+                   CompletableFuture<String> result =
+                           newsLoader.findArticle
+                                   (site_address,
+                                           apikey_value,
+                                           //   q,
+                                           from,
+                                           to,
+                                           category_array[i],
+                                           country,
+                                           page_size,
+                                           page_number);
+                   result.thenAcceptAsync(ii -> {
+                       logger.warn("finished name result = " + result);
+                   });
+
+                   if ( articles_count == null) {
+                       //find count of articles:
+                           articles_count = newsParser.parse_articles_count(result.get());
+                            System.out.println("++articles_count :" + articles_count);
+                   }
+                    cycles_to_read = articles_count - page_size;
+                   page_number++;
+
+                   //articles_info - a collection of received info about articles, shown in textare
+                   articles_info.add(result.get());
+                   rez = String.join("\n\n", articles_info);
+                   model.addAttribute("description", rez);
+                   //articles - a collection of Articles, ready to be written to Word document
+                   articles = newsParser.parseJSON(result.get());
+                   System.out.println("++result.get() :" + result.get());
+              }
+
+                       while (cycles_to_read > 0);
             }
             long endTime = System.currentTimeMillis();
             System.out.println("Common Process time :" + (endTime - startTime));
-        } catch (InterruptedException e) {
-            logger.info("InterruptedException " + e.getMessage());
+        /*} catch (InterruptedException e) {
+           // logger.info("InterruptedException " + e.getMessage());
         } catch (ExecutionException e) {
-            logger.error(e.getMessage());
-        } catch (Exception e) {
-            logger.error(e.getMessage());
+           // logger.error(e.getMessage());
+        */} catch (Exception e) {
+            //logger.error(e.getMessage());
+            e.printStackTrace();
         }
         return "index";
     }
@@ -112,6 +139,8 @@ public class Controller {
         System.out.println("this.articles.size() :" + articles.size());
         XWPFDocument doc1 = (XWPFDocument) msWordStructure.generateDocumentStructure(articles);
         msWordStructure.saveFile(doc1, "1.docx");
+        articles_info.clear();
+
         return "index";
     }
 

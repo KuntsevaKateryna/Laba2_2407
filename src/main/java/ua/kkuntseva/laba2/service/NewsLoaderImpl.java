@@ -6,10 +6,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -25,7 +26,9 @@ public class NewsLoaderImpl implements NewsLoader {
                                                  String from,
                                                  String to,
                                                  String category,
-                                                 String country) throws InterruptedException {
+                                                 String country,
+                                                 int pageSize,
+                                                 int page) throws InterruptedException {
         StringBuilder sb = new StringBuilder();
         try {
             long startTime = System.currentTimeMillis();
@@ -36,6 +39,8 @@ public class NewsLoaderImpl implements NewsLoader {
             builder1.queryParam("to", to);
             builder1.queryParam("category", category);
             builder1.queryParam("country", country);
+            builder1.queryParam("pageSize", pageSize);
+            builder1.queryParam("page", page);
             URI builder1URI = builder1.build().toUri();
             logger.info("URL is " + builder1URI);
             BufferedReader in = new BufferedReader(
@@ -60,4 +65,5 @@ public class NewsLoaderImpl implements NewsLoader {
         }
         return CompletableFuture.completedFuture(sb.toString());
     }
+
 }

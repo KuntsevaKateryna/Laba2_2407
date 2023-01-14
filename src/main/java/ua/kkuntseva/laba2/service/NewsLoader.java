@@ -13,6 +13,10 @@ public interface NewsLoader {
                                                        String from,
                                                        String to,
                                                        String category,
-                                                       String language
+                                                       String language,
+                                                       int pageSize,
+                                                       int page
                                                        ) throws InterruptedException ;
+
+
 }
