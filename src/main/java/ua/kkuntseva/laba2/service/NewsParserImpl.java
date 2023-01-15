@@ -18,10 +18,7 @@ import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.model.Source;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class NewsParserImpl implements NewsParser {
@@ -31,10 +28,10 @@ public class NewsParserImpl implements NewsParser {
 
  @Override
     public List<Article> parseJSON(String jsonString) {
-        List<Article> articles1 = new ArrayList<Article>();
+     List<Article> articles1 = new ArrayList<Article>();
         try {
             System.out.println("start method parseJSON jsonString: " + jsonString);
-            Article article = new Article();
+
             List<Source> source = new ArrayList<Source>();
 
             Object obj = new JSONParser().parse(jsonString);
@@ -42,14 +39,12 @@ public class NewsParserImpl implements NewsParser {
             JSONArray articlesArr = (JSONArray) jo.get("articles");
             JSONObject article_obj = null;
             Iterator articlesItr = articlesArr.iterator();
-
-            //Object obj = new JSONParser().parse(jsonString);
-            //JSONObject jo = (JSONObject) obj;
             Long article_count = (Long) jo.get("totalResults");
             System.out.println("totalResults: " + article_count);
 
             JSONObject source_obj = null;
             while (articlesItr.hasNext()) {
+                Article article = new Article();
                 article_obj = (JSONObject) articlesItr.next();
                 source_obj = (JSONObject) article_obj.get("source");
                 if (!source_obj.isEmpty()) {
@@ -81,7 +76,7 @@ public class NewsParserImpl implements NewsParser {
         return articles1;
     }
 
-    @Override
+@Override
     public List<Article> convert(String source) {
         List<Article> articles2 = new ArrayList<Article>();
         //if (source.startsWith("<?xml "))

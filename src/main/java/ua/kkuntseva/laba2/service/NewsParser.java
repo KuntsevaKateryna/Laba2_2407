@@ -12,4 +12,5 @@ public interface NewsParser extends Converter<String, List<Article>> {
     public List<Article> parseJSON(String jsonString);
     public long parse_articles_count(String jsonString) throws ParseException;
 
+
 }

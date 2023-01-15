@@ -41,13 +41,15 @@ public class MSWordFormat implements FormatGenerator {
                 titleRun.setFontSize(20);
 
                 //write image
-                XWPFParagraph image = document.createParagraph();
-                image.setAlignment(ParagraphAlignment.CENTER);
-                XWPFRun imageRun = image.createRun();
-                imageRun.setTextPosition(20);
-                InputStream pic = new URL(article.getUrlToImage()).openStream();
-                imageRun.addPicture(pic, XWPFDocument.PICTURE_TYPE_JPEG, "image file", Units.toEMU(200), Units.toEMU(200));
-                pic.close();
+                if (article.getUrlToImage() != null ) {
+                    XWPFParagraph image = document.createParagraph();
+                    image.setAlignment(ParagraphAlignment.CENTER);
+                    XWPFRun imageRun = image.createRun();
+                    imageRun.setTextPosition(20);
+                    InputStream pic = new URL(article.getUrlToImage()).openStream();
+                    imageRun.addPicture(pic, XWPFDocument.PICTURE_TYPE_JPEG, "image file", Units.toEMU(200), Units.toEMU(200));
+                    pic.close();
+                }
 
                 //write all text
                 XWPFParagraph para1 = document.createParagraph();
@@ -77,6 +79,7 @@ public class MSWordFormat implements FormatGenerator {
 
         } catch (IOException e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 }

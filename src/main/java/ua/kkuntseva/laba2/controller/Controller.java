@@ -24,10 +24,7 @@ import ua.kkuntseva.laba2.service.NewsLoader;
 import ua.kkuntseva.laba2.service.NewsParser;
 import ua.kkuntseva.laba2.service.NewsParserImpl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -74,8 +71,6 @@ public class Controller {
             String[] category_array = category.split(Pattern.quote(","));
             System.out.println("category: " + category);
 
-
-
             for (int i = 0; i < category_array.length; i++) {
                 System.out.println("category_array[i]: " + category_array[i]);
 
@@ -121,13 +116,12 @@ public class Controller {
             }
             long endTime = System.currentTimeMillis();
             System.out.println("Common Process time :" + (endTime - startTime));
-        /*} catch (InterruptedException e) {
-           // logger.info("InterruptedException " + e.getMessage());
+        } catch (InterruptedException e) {
+            logger.info("InterruptedException " + e.getMessage());
         } catch (ExecutionException e) {
-           // logger.error(e.getMessage());
-        */} catch (Exception e) {
-            //logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
         }
         return "index";
     }
