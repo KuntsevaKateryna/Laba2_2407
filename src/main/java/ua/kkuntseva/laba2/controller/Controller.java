@@ -20,14 +20,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.thymeleaf.util.StringUtils;
-import org.thymeleaf.util.TextUtils;
 import ua.kkuntseva.laba2.factory.FormatGenerator;
 import ua.kkuntseva.laba2.factory.MyFactory;
 import ua.kkuntseva.laba2.model.Article;
 import ua.kkuntseva.laba2.service.NewsLoader;
+import ua.kkuntseva.laba2.service.NewsLoaderImpl;
 import ua.kkuntseva.laba2.service.NewsParser;
-import ua.kkuntseva.laba2.service.NewsParserImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -53,11 +51,9 @@ public class Controller {
 
     @Autowired
     private NewsLoader newsLoader;
-    @Autowired
-    private NewsParser newsParser;
+   /* @Autowired
+    private NewsParser newsParser;*/
 
-    List<String> articles_info = new ArrayList<String>();
-    List<Article> articles = new ArrayList<Article>();
 
     @GetMapping("/home")
     public String defaultPage(Model model) {
@@ -71,7 +67,16 @@ public class Controller {
                                 @RequestParam String to,
                                 @RequestParam(name = "category", required = false, defaultValue = "") String category,
                                 @RequestParam String country) {
-        String rez = null;
+
+        newsLoader.loadArticle(model,
+                from,
+                to,
+                category,
+                country,
+                site_address,
+                apikey_value,
+                page_size);
+   /*     String rez = null;
         logger.info("start to send request");
         long startTime = System.currentTimeMillis();
         try {
@@ -130,10 +135,12 @@ public class Controller {
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
+        */
+
         return "index";
     }
 
-   // @PostMapping("/save")
+    // @PostMapping("/save")
  /*   public String saveInfo() {
         MyFactory f = new MyFactory();
         FormatGenerator msWordStructure = f.create_format("doc");
@@ -149,29 +156,26 @@ public class Controller {
     public ResponseEntity<?> saveArticle() throws IOException, InterruptedException {
         MyFactory f = new MyFactory();
         FormatGenerator msWordStructure = f.create_format("doc");
-        XWPFDocument document = (XWPFDocument) msWordStructure.generateDocumentStructure(articles);
+        XWPFDocument document = (XWPFDocument) msWordStructure.generateDocumentStructure(NewsLoaderImpl.articles);
         byte[] articles = msWordStructure.convertDocumentToBytes(document).toByteArray();
 
         HttpHeaders header = new HttpHeaders();
-        header.setContentDispositionFormData( "attachment", "11.docx");
+        header.setContentDispositionFormData("attachment", "11.docx");
         header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.wordprocessingml.document"));
         header.setContentLength(articles.length);
 
-        InputStreamResource inputStreamResource = new InputStreamResource (new ByteArrayInputStream(articles));
-        articles_info.clear();
+        InputStreamResource inputStreamResource = new InputStreamResource(new ByteArrayInputStream(articles));
+        NewsLoaderImpl.articles_info.clear();
         return ResponseEntity.ok().headers(header).body(inputStreamResource);
     }
-
-
-
 
 
     // not used, just only for testing async effectiveness
     @Async("processExecutor")
     void show_result_in_textarea(CompletableFuture<String> result, String rez, ModelMap model) throws ExecutionException, InterruptedException {
         //articles_info - a collection of received info about articles, shown in textarea
-        articles_info.add(result.get());
-        rez = String.join("\n\n", articles_info);
+        NewsLoaderImpl.articles_info.add(result.get());
+        rez = String.join("\n\n", NewsLoaderImpl.articles_info);
         model.addAttribute("description", rez);
     }
 }
