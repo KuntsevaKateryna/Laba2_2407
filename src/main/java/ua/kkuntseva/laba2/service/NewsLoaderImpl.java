@@ -58,7 +58,7 @@ public class NewsLoaderImpl implements NewsLoader {
             }
 
             long endTime = System.currentTimeMillis();
-            System.out.println("Process time:" + (endTime - startTime));
+            logger.info("Process time:" + (endTime - startTime));
         }
         catch (IOException e) {
            logger.error("error in reading URL resource");

@@ -1,7 +1,6 @@
 package ua.kkuntseva.laba2.service;
 
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
+
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,6 +16,4 @@ public interface NewsLoader {
                                                        int pageSize,
                                                        int page
                                                        ) throws InterruptedException ;
-
-
 }

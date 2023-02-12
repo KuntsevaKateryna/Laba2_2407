@@ -30,7 +30,7 @@ public class NewsParserImpl implements NewsParser {
     public List<Article> parseJSON(String jsonString) {
      List<Article> articles1 = new ArrayList<Article>();
         try {
-            System.out.println("start method parseJSON jsonString: " + jsonString);
+            logger.info("start method parseJSON jsonString: " + jsonString);
 
             List<Source> source = new ArrayList<Source>();
 
@@ -40,7 +40,7 @@ public class NewsParserImpl implements NewsParser {
             JSONObject article_obj = null;
             Iterator articlesItr = articlesArr.iterator();
             Long article_count = (Long) jo.get("totalResults");
-            System.out.println("totalResults: " + article_count);
+            logger.info("totalResults: " + article_count);
 
             JSONObject source_obj = null;
             while (articlesItr.hasNext()) {
@@ -63,12 +63,12 @@ public class NewsParserImpl implements NewsParser {
                 article.setPublishedAt(article_obj.get("publishedAt") != null ? article_obj.get("publishedAt").toString() : null);
                 article.setContent(article_obj.get("content") != null ? article_obj.get("content").toString() : null);
 
-                System.out.println("--articles1.add(article) with title: " + article.getTitle());
+                logger.info("--articles1.add(article) with title: " + article.getTitle());
                 articles1.add(article);
-                System.out.println("--articles1.size() " + articles1.size());
+                logger.info("--articles1.size() " + articles1.size());
                 source.clear();
             }
-            System.out.println("-- Arrays.toString(articles1.toArray()) " + Arrays.toString(articles1.toArray()));
+            logger.info("-- Arrays.toString(articles1.toArray()) " + Arrays.toString(articles1.toArray()));
         } catch (ClassCastException | ParseException |
                 NullPointerException e) {
             logger.error(e.getMessage());
@@ -94,7 +94,7 @@ public class NewsParserImpl implements NewsParser {
      Object obj = new JSONParser().parse(jsonString);
         JSONObject jo = (JSONObject) obj;
         long articles_count = (long) jo.get("totalResults");
-        System.out.println("-- parse_articles_count " + articles_count);
+        logger.info("-- parse_articles_count " + articles_count);
         return articles_count;
     }
 }

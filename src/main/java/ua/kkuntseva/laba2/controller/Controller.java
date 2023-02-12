@@ -1,5 +1,6 @@
 package ua.kkuntseva.laba2.controller;
 
+import org.apache.poi.xwpf.usermodel.Document;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -8,6 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -24,6 +29,8 @@ import ua.kkuntseva.laba2.service.NewsLoader;
 import ua.kkuntseva.laba2.service.NewsParser;
 import ua.kkuntseva.laba2.service.NewsParserImpl;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -69,10 +76,10 @@ public class Controller {
         long startTime = System.currentTimeMillis();
         try {
             String[] category_array = category.split(Pattern.quote(","));
-            System.out.println("category: " + category);
+            logger.info("category: " + category);
 
             for (int i = 0; i < category_array.length; i++) {
-                System.out.println("category_array[i]: " + category_array[i]);
+                logger.info("category_array[i]: " + category_array[i]);
 
                 int page_number = 1;
                 Long articles_count = null;
@@ -98,7 +105,7 @@ public class Controller {
                    if ( articles_count == null) {
                        //find count of articles:
                            articles_count = newsParser.parse_articles_count(result.get());
-                            System.out.println("++articles_count :" + articles_count);
+                       logger.info("++articles_count :" + articles_count);
                    }
                     cycles_to_read = articles_count - page_size;
                    page_number++;
@@ -109,13 +116,13 @@ public class Controller {
                    model.addAttribute("description", rez);
                    //articles - a collection of Articles, ready to be written to Word document
                    articles = newsParser.parseJSON(result.get());
-                   System.out.println("++result.get() :" + result.get());
+                   logger.info("++result.get() :" + result.get());
               }
 
                        while (cycles_to_read > 0);
             }
             long endTime = System.currentTimeMillis();
-            System.out.println("Common Process time :" + (endTime - startTime));
+            logger.info("Common Process time :" + (endTime - startTime));
         } catch (InterruptedException e) {
             logger.info("InterruptedException " + e.getMessage());
         } catch (ExecutionException e) {
@@ -126,17 +133,38 @@ public class Controller {
         return "index";
     }
 
-    @PostMapping("/save")
-    public String saveInfo() {
+   // @PostMapping("/save")
+ /*   public String saveInfo() {
         MyFactory f = new MyFactory();
         FormatGenerator msWordStructure = f.create_format("doc");
-        System.out.println("this.articles.size() :" + articles.size());
+        logger.info("this.articles.size() :" + articles.size());
         XWPFDocument doc1 = (XWPFDocument) msWordStructure.generateDocumentStructure(articles);
         msWordStructure.saveFile(doc1, "1.docx");
         articles_info.clear();
 
         return "index";
     }
+*/
+    @PostMapping("/save")
+    public ResponseEntity<?> saveArticle() throws IOException, InterruptedException {
+        MyFactory f = new MyFactory();
+        FormatGenerator msWordStructure = f.create_format("doc");
+        XWPFDocument document = (XWPFDocument) msWordStructure.generateDocumentStructure(articles);
+        byte[] articles = msWordStructure.convertDocumentToBytes(document).toByteArray();
+
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDispositionFormData( "attachment", "11.docx");
+        header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.wordprocessingml.document"));
+        header.setContentLength(articles.length);
+
+        InputStreamResource inputStreamResource = new InputStreamResource (new ByteArrayInputStream(articles));
+        articles_info.clear();
+        return ResponseEntity.ok().headers(header).body(inputStreamResource);
+    }
+
+
+
+
 
     // not used, just only for testing async effectiveness
     @Async("processExecutor")
