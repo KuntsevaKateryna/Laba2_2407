@@ -5,19 +5,11 @@ import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ua.kkuntseva.laba2.model.Article;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,7 +26,7 @@ public class MSWordFormat implements FormatGenerator {
             Iterator<Article> iter = articles.iterator();
             while (iter.hasNext()) {
                 article = iter.next();
-                logger.info(" article: " + article.getTitle());
+                //logger.info(" article: " + article.getTitle());
                 //create title
                 XWPFParagraph title = document.createParagraph();
                 title.setAlignment(ParagraphAlignment.CENTER);
@@ -46,7 +38,8 @@ public class MSWordFormat implements FormatGenerator {
                 titleRun.setFontSize(20);
 
                 //write image
-                if (article.getUrlToImage() != null) {
+                try {
+                    if (article.getUrlToImage() != null) {
                     XWPFParagraph image = document.createParagraph();
                     image.setAlignment(ParagraphAlignment.CENTER);
                     XWPFRun imageRun = image.createRun();
@@ -55,12 +48,16 @@ public class MSWordFormat implements FormatGenerator {
                     imageRun.addPicture(pic, XWPFDocument.PICTURE_TYPE_JPEG, "image file", Units.toEMU(200), Units.toEMU(200));
                     pic.close();
                 }
+            }
+                catch (MalformedURLException e) {
+                    logger.error(article.getUrlToImage() + "can't be converted to URL");
+                }
 
                 //write all text
-                XWPFParagraph para1 = document.createParagraph();
-                para1.setAlignment(ParagraphAlignment.BOTH);
-                XWPFRun para1Run = para1.createRun();
-                para1Run.setText(article.toString());
+                    XWPFParagraph para1 = document.createParagraph();
+                    para1.setAlignment(ParagraphAlignment.BOTH);
+                    XWPFRun para1Run = para1.createRun();
+                    para1Run.setText(article.toString());
             }
         } catch (NullPointerException e) {
             logger.error(e.getMessage());
@@ -69,25 +66,6 @@ public class MSWordFormat implements FormatGenerator {
         }
         return document;
     }
-
-/*    @Override
-    public void saveFile (Document document, String file_path) {
-        File file = new File(file_path);
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(file);
-
-            XWPFDocument wordDoc = (XWPFDocument) document;
-            wordDoc.write(out);
-            out.close();
-            wordDoc.close();
-
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
-        }
-    }
-*/
 
     @Override
     public ByteArrayOutputStream convertDocumentToBytes(Document document) throws IOException {

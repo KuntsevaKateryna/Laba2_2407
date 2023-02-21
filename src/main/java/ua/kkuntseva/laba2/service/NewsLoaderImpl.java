@@ -1,8 +1,13 @@
 package ua.kkuntseva.laba2.service;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
@@ -29,6 +34,8 @@ public class NewsLoaderImpl implements NewsLoader {
     public static List<String> articles_info = new ArrayList<String>();
     public static List<Article> articles = new ArrayList<Article>();
 
+    @Autowired
+    private ConversionService conversionService;
     @Autowired
     private NewsParser newsParser;
 
@@ -125,7 +132,7 @@ public class NewsLoaderImpl implements NewsLoader {
 
                     if ( articles_count == null) {
                         //find count of articles:
-                        articles_count = newsParser.parse_articles_count(result.get());
+                        articles_count = this.parse_articles_count(result.get());
                         logger.info("++articles_count :" + articles_count);
                     }
                     cycles_to_read = articles_count - page_size;
@@ -137,6 +144,8 @@ public class NewsLoaderImpl implements NewsLoader {
                     model.addAttribute("description", rez);
                     //articles - a collection of Articles, ready to be written to Word document
                     articles = newsParser.parseJSON(result.get());
+
+//  articles = conversionService.convert(result.get(), (Class<List<Article>>)(Class<?>)List.class);
                     logger.info("++result.get() :" + result.get());
                 }
 
@@ -152,7 +161,14 @@ public class NewsLoaderImpl implements NewsLoader {
             logger.error(e.getMessage());
         }
 
-        ;
+
     }
 
+    public long parse_articles_count(String jsonString) throws ParseException {
+        Object obj = new JSONParser().parse(jsonString);
+        JSONObject jo = (JSONObject) obj;
+        long articles_count = (long) jo.get("totalResults");
+        logger.info("-- parse_articles_count " + articles_count);
+        return articles_count;
+    }
 }

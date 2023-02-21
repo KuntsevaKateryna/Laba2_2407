@@ -3,13 +3,15 @@ package ua.kkuntseva.laba2.configuration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import ua.kkuntseva.laba2.service.NewsParserImpl;
+import ua.kkuntseva.laba2.converter.JSONObjectToArticleConverter;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(new NewsParserImpl());
+      //  registry.addConverter(new NewsParserImpl());
+        registry.addConverter(new JSONObjectToArticleConverter());
+      //  registry.addConverter(new StringToArticlesListConverter());
     }
 }

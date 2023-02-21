@@ -7,10 +7,8 @@ import ua.kkuntseva.laba2.model.Article;
 import java.util.List;
 
 
-public interface NewsParser extends Converter<String, List<Article>> {
+public interface NewsParser {
 
     public List<Article> parseJSON(String jsonString);
     public long parse_articles_count(String jsonString) throws ParseException;
-
-
 }
