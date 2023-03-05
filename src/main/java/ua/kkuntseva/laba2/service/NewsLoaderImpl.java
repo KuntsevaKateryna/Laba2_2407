@@ -7,20 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
-import ua.kkuntseva.laba2.controller.Controller;
 import ua.kkuntseva.laba2.model.Article;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -30,14 +25,32 @@ import java.util.regex.Pattern;
 @Service
 public class NewsLoaderImpl implements NewsLoader {
 
+
+
     Logger logger = LoggerFactory.getLogger(NewsLoaderImpl.class);
-    public static List<String> articles_info = new ArrayList<String>();
-    public static List<Article> articles = new ArrayList<Article>();
+    private List<String> articles_info ;
+    private List<Article> articles;
 
     @Autowired
     private ConversionService conversionService;
     @Autowired
     private NewsParser newsParser;
+
+
+
+    public List<String> getArticles_info() {
+        return articles_info;
+    }
+
+    public List<Article> getArticles() {
+        return articles;
+    }
+
+    public NewsLoaderImpl() {
+        this.articles_info = new ArrayList<String>();;
+        this.articles =  new ArrayList<Article>();
+    }
+
 
     @Async("processExecutor")
     @Override
@@ -139,8 +152,8 @@ public class NewsLoaderImpl implements NewsLoader {
                     page_number++;
 
                     //articles_info - a collection of received info about articles, shown in textare
-                    articles_info.add(result.get());
-                    rez = String.join("\n\n", articles_info);
+                    this.getArticles_info().add(result.get());
+                    rez = String.join("\n\n", this.getArticles_info());
                     model.addAttribute("description", rez);
                     //articles - a collection of Articles, ready to be written to Word document
                     articles = newsParser.parseJSON(result.get());

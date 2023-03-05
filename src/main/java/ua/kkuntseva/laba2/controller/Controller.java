@@ -76,7 +76,7 @@ public class Controller {
     public ResponseEntity<?> saveArticle() throws IOException, InterruptedException {
         MyFactory f = new MyFactory();
         FormatGenerator msWordStructure = f.create_format("doc");
-        XWPFDocument document = (XWPFDocument) msWordStructure.generateDocumentStructure(NewsLoaderImpl.articles);
+        XWPFDocument document = (XWPFDocument) msWordStructure.generateDocumentStructure(newsLoader.getArticles());
         byte[] articles = msWordStructure.convertDocumentToBytes(document).toByteArray();
 
         HttpHeaders header = new HttpHeaders();
@@ -85,7 +85,7 @@ public class Controller {
         header.setContentLength(articles.length);
 
         InputStreamResource inputStreamResource = new InputStreamResource(new ByteArrayInputStream(articles));
-        NewsLoaderImpl.articles_info.clear();
+        newsLoader.getArticles_info().clear();
         return ResponseEntity.ok().headers(header).body(inputStreamResource);
     }
 
@@ -94,8 +94,8 @@ public class Controller {
     @Async("processExecutor")
     void show_result_in_textarea(CompletableFuture<String> result, String rez, ModelMap model) throws ExecutionException, InterruptedException {
         //articles_info - a collection of received info about articles, shown in textarea
-        NewsLoaderImpl.articles_info.add(result.get());
-        rez = String.join("\n\n", NewsLoaderImpl.articles_info);
+        newsLoader.getArticles_info().add(result.get());
+        rez = String.join("\n\n", newsLoader.getArticles_info());
         model.addAttribute("description", rez);
     }
 }
