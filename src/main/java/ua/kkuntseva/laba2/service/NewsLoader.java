@@ -23,10 +23,10 @@ public interface NewsLoader {
 
     public void loadArticle(ModelMap model,
                             // @RequestParam String q,
-                            @RequestParam String from,
-                            @RequestParam String to,
-                            @RequestParam(name = "category", required = false, defaultValue = "") String category,
-                            @RequestParam String country,
+                            String from,
+                            String to,
+                            String category,
+                            String country,
                             String site_address,
                             String apikey_value,
                             int page_size);
