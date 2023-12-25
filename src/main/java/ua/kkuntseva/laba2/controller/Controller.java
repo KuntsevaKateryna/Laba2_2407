@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 @org.springframework.stereotype.Controller
-@RequestMapping("/laba2")
+@RequestMapping("/laba3")
 public class Controller {
 
     Logger logger = LoggerFactory.getLogger(Controller.class);
